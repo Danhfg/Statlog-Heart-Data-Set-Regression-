@@ -196,3 +196,53 @@ summary(b_age)
 confint(b_age)
 
 plot(hpt[,1], hpt[,14], xlab = 'gender', ylab = "DIE/ALIVE")
+
+#Regressão
+
+summary(lm(num~ age + ca , data = hpt))
+summary(lm(num~ cp + exang, data = hpt))
+
+summary(lm(num~ sex + thal, data = hpt))
+summary(lm(num~ cp + exang + sex + thal, data = hpt))
+summary(lm(num~ cp + exang + thal, data = hpt))
+
+summary(lm(num~ cp + exang + ca, data = hpt))
+
+summary(lm(num~ cp + exang + thal + ca, data = hpt))
+
+
+
+summary(lm(num~ age + ca + trestbps + thalach + oldpeak, data = hpt))
+summary(lm(num~ ca + thalach + oldpeak, data = hpt))
+summary(lm(num~ sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ cp + exang + slope + thal, data = hpt))
+summary(lm(num~ ca + oldpeak + cp + exang + thal, data = hpt))
+
+
+summary(lm(num~ ca + thalach + oldpeak + cp + restecg + thal, data = hpt))
+
+
+summary(lm(num~ age + ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+
+
+summary(lm(num~ ca + thalach + oldpeak + cp + thal, data = hpt))
+
+hpt[,15] <- (hpt[,14]>0)+0
+
+##############
+
+summary(lm(V15~ age + ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+
+summary(lm(V15~ ca + thalach + sex + cp + exang + thal, data = hpt))
+
+summary(lm(V15~ cp + exang + sex + thal, data = hpt))
+
+summary(lm(V15~ ca + thalach + oldpeak, data = hpt))
+
+summary(lm(V15~ cp + exang + sex + thal + ca + thalach + oldpeak, data = hpt))
+
+
+
+library(ggplot2)
+ggplot(hpt, aes(x=chol, y=trestbps)) + 
+  geom_point(aes(col=V15))
