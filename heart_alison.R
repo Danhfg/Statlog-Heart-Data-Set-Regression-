@@ -4,7 +4,7 @@ install.packages("gmodels")
 
 ### Leitura
 
-hpt <- read.csv('processed.cleveland.data', header=FALSE, na='?')
+hpt <- read.csv('heart_c.csv', header=TRUE, na='?')
 hpt.names <- read.delim('heart-disease.names')
 hpt.names <- hpt.names %>%
   slice(96:109) %>%
@@ -199,7 +199,7 @@ plot(hpt[,1], hpt[,14], xlab = 'gender', ylab = "DIE/ALIVE")
 
 #Regressão
 
-summary(lm(num~ age + ca , data = hpt))
+summary(lm(num~ sex + cp , data = hpt))
 summary(lm(num~ cp + exang, data = hpt))
 
 summary(lm(num~ sex + thal, data = hpt))
@@ -209,7 +209,6 @@ summary(lm(num~ cp + exang + thal, data = hpt))
 summary(lm(num~ cp + exang + ca, data = hpt))
 
 summary(lm(num~ cp + exang + thal + ca, data = hpt))
-
 
 
 summary(lm(num~ age + ca + trestbps + thalach + oldpeak, data = hpt))
@@ -231,7 +230,31 @@ hpt[,15] <- (hpt[,14]>0)+0
 
 ##############
 
-summary(lm(V15~ age + ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+###data train dan data testing###
+install.packages("caTools")
+library(caTools)
+#randomly split data
+set.seed(123)
+split=sample.split(hpt$num, SplitRatio = 0.75)
+split
+
+qualityTrain=subset(hpt,split == TRUE)
+qualityTest=subset(hpt,split == FALSE)
+nrow(qualityTrain)
+nrow(qualityTest)
+
+x <- lm(num~ ca + oldpeak + cp + exang + thal, data = qualityTrain)
+summary(x)
+confint(x)
+
+install.packages("prediction")
+library(prediction)
+
+predictTest=predict(x, newdata = qualityTest,type = "response")
+table(qualityTest$num,predictTest >=0.7)
+
+#accuracia
+(117+78)/257
 
 summary(lm(V15~ ca + thalach + sex + cp + exang + thal, data = hpt))
 
@@ -240,8 +263,6 @@ summary(lm(V15~ cp + exang + sex + thal, data = hpt))
 summary(lm(V15~ ca + thalach + oldpeak, data = hpt))
 
 summary(lm(V15~ cp + exang + sex + thal + ca + thalach + oldpeak, data = hpt))
-
-
 
 library(ggplot2)
 ggplot(hpt, aes(x=chol, y=trestbps)) + 
