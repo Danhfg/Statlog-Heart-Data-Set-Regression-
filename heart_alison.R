@@ -4,7 +4,8 @@ install.packages("gmodels")
 
 ### Leitura
 
-hpt <- read.csv('heart_c.csv', header=TRUE, na='?')
+#hpt <- read.csv('heart_c.csv', header=TRUE, na='?')
+hpt <- read.csv('processed.cleveland.data', header=FALSE, na='?')
 hpt.names <- read.delim('heart-disease.names')
 hpt.names <- hpt.names %>%
   slice(96:109) %>%
@@ -114,7 +115,7 @@ b_gender <- lm(hpt[,14] ~ hpt[,2], data = hpt)
 summary(b_gender)
 confint(b_gender)
 
-plot(hpt[,2], hpt[,14], xlab = 'gender', ylab = "DIE/ALIVE")
+plot(hpt[,2], hpt[,14], xlab = 'gender', ylab = "presence/absence")
 
 ### Variaveis Numéricas
 
@@ -195,10 +196,10 @@ b_age <- lm(hpt[,14] ~ hpt[,1], data = hpt)
 summary(b_age)
 confint(b_age)
 
-plot(hpt[,1], hpt[,14], xlab = 'gender', ylab = "DIE/ALIVE")
+plot(hpt[,1], hpt[,14], xlab = 'age', ylab = "presence/absence")
 
 #Regressão
-
+"
 summary(lm(num~ sex + cp , data = hpt))
 summary(lm(num~ cp + exang, data = hpt))
 
@@ -219,14 +220,32 @@ summary(lm(num~ ca + oldpeak + cp + exang + thal, data = hpt))
 
 
 summary(lm(num~ ca + thalach + oldpeak + cp + restecg + thal, data = hpt))
-
-
+"
+##### Verificando modelos, caso o p valor de alguma variável preditora for
+#####  maior que o nível de significância de 0.05, a variável é descartada
 summary(lm(num~ age + ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ age + ca + trestbps + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ age + ca + trestbps + thalach + oldpeak + sex + cp + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ ca + trestbps + thalach + oldpeak + sex + cp + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ ca + thalach + oldpeak + sex + cp + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ ca + thalach + oldpeak + cp + restecg + exang + slope + thal, data = hpt))
+summary(lm(num~ ca + thalach + oldpeak + cp + restecg + exang + thal, data = hpt))
 
-
-summary(lm(num~ ca + thalach + oldpeak + cp + thal, data = hpt))
-
+#summary(lm(num~ ca + thalach + oldpeak + cp + thal, data = hpt))
+##### Binarizando o resultado, 0 não possui doença cardíaca, 1 possui.
 hpt[,15] <- (hpt[,14]>0)+0
+
+#summary(lm(V15~ ca + thalach + oldpeak + cp + thal, data = hpt))
+
+##### Verificando modelos, caso o p valor de alguma variável preditora for
+#####  maior que o nível de significância de 0.05, a variável é descartada
+summary(lm(V15~ age + ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(V15~ ca + trestbps + chol + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(V15~ ca + trestbps + thalach + oldpeak + sex + cp + fbs + restecg + exang + slope + thal, data = hpt))
+summary(lm(V15~ ca + trestbps + thalach + oldpeak + sex + cp + fbs + restecg + exang + thal, data = hpt))
+summary(lm(V15~ ca + trestbps + thalach + oldpeak + sex + cp + restecg + exang + thal, data = hpt))
+summary(lm(V15~ ca + thalach + oldpeak + sex + cp + restecg + exang + thal, data = hpt))
+summary(lm(V15~ ca + thalach + oldpeak + sex + cp + exang + thal, data = hpt))
 
 ##############
 
@@ -243,27 +262,18 @@ qualityTest=subset(hpt,split == FALSE)
 nrow(qualityTrain)
 nrow(qualityTest)
 
-x <- lm(num~ ca + oldpeak + cp + exang + thal, data = qualityTrain)
+#x <- lm(V15~ ca + oldpeak + cp + exang + thal, data = qualityTrain)
+x <- lm(num~ ca + thalach + oldpeak + cp + restecg + exang + thal, data = qualityTrain)
 summary(x)
 confint(x)
 
 install.packages("prediction")
 library(prediction)
 
+
 predictTest=predict(x, newdata = qualityTest,type = "response")
 table(qualityTest$num,predictTest >=0.7)
 
 #accuracia
-(117+78)/257
-
-summary(lm(V15~ ca + thalach + sex + cp + exang + thal, data = hpt))
-
-summary(lm(V15~ cp + exang + sex + thal, data = hpt))
-
-summary(lm(V15~ ca + thalach + oldpeak, data = hpt))
-
-summary(lm(V15~ cp + exang + sex + thal + ca + thalach + oldpeak, data = hpt))
-
-library(ggplot2)
-ggplot(hpt, aes(x=chol, y=trestbps)) + 
-  geom_point(aes(col=V15))
+(32+9+9+9+3)/76
+#(117+78)/257
